@@ -75,7 +75,9 @@
                         />
                         <div class="card-body">
                           <h5 class="card-title hstack gap-3 justify-content-between">
-                          <span>${name}</span> <span class="text-success">$${price.toFixed(2)}</span>
+                          <span>${name}</span> <span class="text-success">
+                            $${price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                          </span>
                           </h5>
                           <p class="card-text">${description}</p>
                           <p class="small text-${amount ? 'secondary' : 'danger'}">${
