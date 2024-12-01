@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Productos | JARMM</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand bg-primary navbar-dark shadow">
+      <div class="container">
+        <a class="navbar-brand fw-bold">JARMM</a>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active">Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./pedidos.html">Pedidos</a>
+          </li>
+        </ul>
+        <div class="hstack gap-4 text-white">
+          <span class="fw-medium">
+            <i class="bi bi-person-circle me-1"></i>
+            <span id="nameContainer"></span> (Administrador)
+          </span>
+          <button id="logoutButton" class="btn btn-sm btn-outline-light">Salir</button>
+        </div>
+      </div>
+    </nav>
+    <div class="container my-4">
+      <h5>Productos</h5>
+      <hr />
+      <div class="row g-3" id="productsContainer">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" style="width: 3rem; height: 3rem" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="../config.js"></script>
+    <script src="../session.js"></script>
+    <script>
+      const productsContainer = document.getElementById('productsContainer')
+
+      const { baseUrl } = config
+
+      ;(async () => {
+        try {
+          const products = await fetch(`${baseUrl}/Product`).then(res => res.json())
+          productsContainer.innerHTML = products.length
+            ? products
+                .map(
+                  ({ image, name, price, description, amount }) => `
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                      <div class="card h-100 shadow">
+                        <img
+                          src="${image}"
+                          class="card-img-top object-fit-cover"
+                          style="height:275px"
+                          alt="Imagen producto"
+                        />
+                        <div class="card-body">
+                          <h5 class="card-title hstack gap-3 justify-content-between">
+                          <span>${name}</span> <span class="text-success">$${price.toFixed(2)}</span>
+                          </h5>
+                          <p class="card-text">${description}</p>
+                          <p class="small text-${amount ? 'secondary' : 'danger'}">${
+                    amount ? `${amount} disponible${amount == 1 ? '' : 's'}` : 'Agotado'
+                  }</p>
+                        </div>
+                      </div>
+                    </div>
+                  `
+                )
+                .join('')
+            : `<div><div class="alert alert-primary text-center">No hay productos para mostrar</div></div>`
+        } catch (error) {
+          notyf.error('Ocurrió un error al obtener los productos')
+        }
+      })()
+    </script>
+  </body>
+</html>
