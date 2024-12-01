@@ -59,17 +59,18 @@
       const loginButtonSpinner = document.getElementById('loginButtonSpinner')
 
       async function login() {
-        loginButton.disabled = true
-        loginButtonSpinner.classList.remove('d-none')
-
         const email = emailControl.value
         const password = passwordControl.value
+
         if (!(email && password)) {
           notyf.error('Completa la información solicitada')
           return
         }
 
         try {
+          loginButton.disabled = true
+          loginButtonSpinner.classList.remove('d-none')
+
           const { baseUrl, storageKey } = config
           const res = await fetch(`${baseUrl}/Auth/login`, {
             headers: {
@@ -78,8 +79,11 @@
             method: 'POST',
             body: JSON.stringify({ email, password }),
           })
+
           if (!res.ok) throw res
+
           const user = await res.json()
+
           localStorage.setItem(`${storageKey}.auth.user`, JSON.stringify(user))
           window.location.replace(user.admin ? '/administrador/productos.html' : '/cliente/inicio.html')
         } catch (error) {
