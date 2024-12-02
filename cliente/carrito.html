@@ -59,6 +59,7 @@
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="../config.js"></script>
     <script src="../session.js"></script>
+    <script src="../messaging.js"></script>
     <script>
       const cartContainer = document.getElementById('cartContainer')
 
@@ -108,6 +109,10 @@
           })
           if (!res.ok) throw res
           res = await fetch(`${baseUrl}/Cart/${user.id}`, { method: 'DELETE' })
+          localStorage.setItem(
+            `${storageKey}.messaging.message`,
+            JSON.stringify({ type: 'success', message: 'Pedido realizado exitosamente' })
+          )
           window.location.assign('/cliente/pedidos.html')
         } catch (error) {
           notyf.error('Ocurrió un error inesperado')
