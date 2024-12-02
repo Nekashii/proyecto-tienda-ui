@@ -62,8 +62,10 @@
     <script>
       const cartContainer = document.getElementById('cartContainer')
 
+      let cartProducts = []
+
       const { baseUrl, storageKey } = config
-      const { id } = JSON.parse(localStorage.getItem(`${storageKey}.auth.user`))
+      const user = JSON.parse(localStorage.getItem(`${storageKey}.auth.user`))
 
       async function removeFromCart(productId) {
         const removeFromCartButton = document.getElementById(`removeFromCartButton${productId}`)
@@ -75,12 +77,10 @@
         removeFromCartButtonSpinner.classList.remove('d-none')
 
         try {
-          const res = await fetch(`${baseUrl}/Cart/${id}/${productId}`, { method: 'DELETE' })
+          const res = await fetch(`${baseUrl}/Cart/${user.id}/${productId}`, { method: 'DELETE' })
           if (!res.ok) throw res
           await init()
         } catch (error) {
-          console.log(error)
-
           notyf.error('Ocurrió un error inesperado')
           removeFromCartButton.disabled = false
           removeFromCartButtonSpinner.classList.add('d-none')
@@ -88,9 +88,38 @@
         }
       }
 
+      async function order() {
+        const orderButton = document.getElementById(`orderButton`)
+        const orderButtonIcon = document.getElementById(`orderButtonIcon`)
+        const orderButtonSpinner = document.getElementById(`orderButtonSpinner`)
+
+        orderButton.disabled = true
+        orderButtonIcon.classList.add('d-none')
+        orderButtonSpinner.classList.remove('d-none')
+
+        try {
+          let res = await fetch(`${baseUrl}/Order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user,
+              products: cartProducts.map(({ product, amount }) => ({ product, amount, price: product.price })),
+            }),
+          })
+          if (!res.ok) throw res
+          res = await fetch(`${baseUrl}/Cart/${user.id}`, { method: 'DELETE' })
+          window.location.assign('/cliente/pedidos.html')
+        } catch (error) {
+          notyf.error('Ocurrió un error inesperado')
+          orderButton.disabled = false
+          orderButtonSpinner.classList.add('d-none')
+          orderButtonIcon.classList.remove('d-none')
+        }
+      }
+
       async function init() {
         try {
-          const cartProducts = await fetch(`${baseUrl}/Cart/${id}`).then(res => res.json())
+          cartProducts = await fetch(`${baseUrl}/Cart/${user.id}`).then(res => res.json())
           cartContainer.innerHTML = cartProducts.length
             ? `
               <div>
@@ -135,7 +164,7 @@
                       .toFixed(2)
                       .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     </h5>
-                    <button id="orderButton" class="btn btn-lg mt-4 ms-auto col-auto btn-primary">
+                    <button id="orderButton" onclick="order()" class="btn btn-lg mt-4 ms-auto col-auto btn-primary">
                       <i id="orderButtonIcon" class="bi bi-box2-heart me-2"></i>
                       <span id="orderButtonSpinner" class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true"></span>
                       Realizar pedido

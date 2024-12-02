@@ -53,6 +53,72 @@
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="../config.js"></script>
     <script src="../session.js"></script>
-    <script></script>
+    <script>
+      const ordersContainer = document.getElementById('ordersContainer')
+
+      const { baseUrl, storageKey } = config
+      const { id } = JSON.parse(localStorage.getItem(`${storageKey}.auth.user`))
+
+      ;(async () => {
+        try {
+          const orders = await fetch(`${baseUrl}/Order`).then(res => res.json())
+          ordersContainer.innerHTML = orders.length
+            ? orders
+                .map(
+                  ({ id, createdAt, products, user: { firstName, lastName } }) => `
+            <div>
+              <div class="card shadow">
+                <div class="card-body">
+                  <div class="hstack justify-content-between">
+                    <h6 class="m-0">Pedido #${id.toString().padStart(5, '0')}</h6>
+                    <span class="small">
+                      Realizado por
+                      <span class="fw-semibold">${firstName} ${lastName}</span>
+                      el ${new Date(createdAt).toLocaleDateString('es-MX', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <hr />
+                  ${products
+                    .map(
+                      ({ amount, price, product: { name, image } }) => `
+                      <div class="hstack gap-4 align-items-start">
+                        <img
+                          style="height: 75px; width: 95px"
+                          class="rounded object-fit-cover"
+                          src="${image}"
+                          alt="Imagen producto"
+                        />
+                        <div class="vstack align-items-start">
+                          <h6>${name}</h6>
+                          <div class="text-secondary small">Cantidad: ${amount}</div>
+                        </div>
+                        <h6 class="ms-auto">$${(price * amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</h6>
+                      </div>
+                    `
+                    )
+                    .join('<hr />')}
+                  <hr />
+                  <h6 class="text-end">
+                    Total: $${products
+                      .reduce((total, { amount, product: { price } }) => total + price * amount, 0)
+                      .toFixed(2)
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  </h6>
+                </div>
+              </div>
+            </div>
+          `
+                )
+                .join('')
+            : `<div><div class="alert alert-primary text-center">No hay pedidos para mostrar</div></div>`
+        } catch (error) {
+          notyf.error('Ocurrió un error al obtener los pedidos')
+        }
+      })()
+    </script>
   </body>
 </html>
