@@ -14,7 +14,7 @@
   </head>
   <body class="bg-light">
     <div class="container vh-100 d-flex align-items-center justify-content-center">
-      <div class="card w-100 shadow" style="max-width: 500px">
+      <form id="loginForm" class="card w-100 shadow" style="max-width: 500px">
         <div class="card-body vstack gap-4">
           <div>
             <h2 class="m-0">JARMM</h2>
@@ -31,7 +31,6 @@
           </div>
           <button
             id="loginButton"
-            type="button"
             onclick="login()"
             class="btn btn-lg btn-primary d-flex justify-content-center align-items-center"
           >
@@ -43,7 +42,7 @@
             Continuar
           </button>
         </div>
-      </div>
+      </form>
     </div>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -53,12 +52,15 @@
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="config.js"></script>
     <script>
+      const loginForm = document.getElementById('loginForm')
       const emailControl = document.getElementById('emailControl')
       const passwordControl = document.getElementById('passwordControl')
       const loginButton = document.getElementById('loginButton')
       const loginButtonSpinner = document.getElementById('loginButtonSpinner')
 
-      async function login() {
+      loginForm.onsubmit = async e => {
+        e.preventDefault()
+
         const email = emailControl.value
         const password = passwordControl.value
 
